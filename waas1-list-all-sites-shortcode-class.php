@@ -223,17 +223,17 @@ class waas1_list_all_sites_shortcode_class{
 		}
 		
 		
+		
 		//if no site found
 		if( !$all_sites['status'] ){
 			$html = '<div id="waas1_list_all_sites_notice_wrapper">';
 				$html .= '<div class="warning notice">';
-					$html .= '<p>Your site list is empty or your site creation is still under processing. Please contact us if you don\'t see your website listed here.</p>';
+					$html .= '<p>Your site list is empty or your site creation is still under processing. Please contact us if you do not see your website listed here.</p>';
 				$html .= '</div>';
 			$html .= '</div>';
 			echo $html;
 			return; //make sure to return from here
 		}
-		
 
 		
 		
