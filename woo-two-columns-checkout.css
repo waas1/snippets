@@ -1,0 +1,22 @@
+@media (min-width: 768px){
+    #customer_details{
+        width: 55%;
+		float: left;
+		padding-right: 50px;
+    }
+    #order_review_heading{
+        width: 30%;
+        float: left;
+    }
+    #order_review{
+        width: 45%;
+    	float: left;
+    }
+    .woocommerce table.shop_table td{
+        width: 50%;
+    }
+    .woocommerce .col2-set .col-1, .woocommerce-page .col2-set .col-1,
+    .woocommerce .col2-set .col-2, .woocommerce-page .col2-set .col-2{
+        width: 100%;
+    }
+}
