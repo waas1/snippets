@@ -1,5 +1,4 @@
 <?php
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -59,6 +58,7 @@ class waas1_list_all_sites_shortcode_class{
 		}
 		#waas1_list_all_sites_shortcode_wrapper .thumbnail img{
 			border-radius: 6px;
+			max-width: 120px;
 		}
 		#waas1_list_all_sites_shortcode_wrapper h4{
 			margin: 0 0 5px 0;

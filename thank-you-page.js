@@ -1,10 +1,14 @@
 jQuery( document ).ready(function( $ ){
     
-	let searchParams = new URLSearchParams(window.location.search);
+	let searchParams = new URLSearchParams( window.location.search );
 	let uniqueOrderId = searchParams.get('unique-order-id');
-	let refreshIntervalId = setInterval( checkForSiteProgress, 5000 );
+	let refreshIntervalId;
 	
-	checkForSiteProgress();
+	if( uniqueOrderId != null ){
+		checkForSiteProgress();
+		refreshIntervalId = setInterval( checkForSiteProgress, 10000 );
+	}
+	
 	
 	function checkForSiteProgress(){
 		
@@ -12,16 +16,19 @@ jQuery( document ).ready(function( $ ){
 			type : "POST",
 			dataType : "json",
 			url : "/encrypted-admin/wp-admin/admin-ajax.php",
-			data : { 'action':'wpTenant_getSiteProgress', 'unique-order-id':uniqueOrderId },
+			data : { 'action':'waas1_get_site_progress', 'unique-order-id':uniqueOrderId },
 			success: function( data ){
 				
-				let progressWithPercent = data['data']['progress_completed']+'%';
-				$( '#siteProgressBar .elementor-progress-bar' ).css( 'width', progressWithPercent );
-				$( '#siteProgressBar .elementor-progress-percentage' ).html( progressWithPercent );
-				
-				if( data['data']['progress_completed'] === '100' ){
-					clearInterval( refreshIntervalId );
-					injectHtmlData( data['data'] );
+				if( data['data'] ){
+			
+					let progressWithPercent = data['data']['progress_completed']+'%';
+					$( '#siteProgressBar .elementor-progress-bar' ).css( 'width', progressWithPercent );
+					$( '#siteProgressBar .elementor-progress-percentage' ).html( progressWithPercent );
+
+					if( data['data']['progress_completed'] === '100' ){
+						clearInterval( refreshIntervalId );
+						injectHtmlData( data['data'] );
+					}
 				}
 
 			}
@@ -49,3 +56,4 @@ jQuery( document ).ready(function( $ ){
 	
 	
 });
+
