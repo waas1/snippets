@@ -218,9 +218,8 @@ class waas1_list_all_sites_shortcode_class{
 															'client-email'=>$this->loggedInUserEmail, 
 															'with-one-time-login'=>$this->loggedInUserEmail,
 															));
-			wp_cache_add( $cache_key, $all_sites, 'waas1_list_all_sites_short_code', 60 );
-			
 		}
+		
 		
 		
 		
@@ -234,6 +233,31 @@ class waas1_list_all_sites_shortcode_class{
 			echo $html;
 			return; //make sure to return from here
 		}
+		
+		
+		
+		$count_all_sites = count( $all_sites['data'] );
+		
+		if( $count_all_sites == 1 && $all_sites['data'][0]['progress_completed'] != '100' ){
+			
+			$html = '<div id="waas1_list_all_sites_notice_wrapper">';
+				$html .= '<div class="warning notice">';
+					$html .= '<p>Your site list is empty or your site creation is still under processing. Please contact us if you do not see your website listed here.</p>';
+				$html .= '</div>';
+			$html .= '</div>';
+			echo $html;
+			return; //make sure to return from here
+			
+		}else{
+			
+			//now it's safe to add the results to cache
+			wp_cache_add( $cache_key, $all_sites, 'waas1_list_all_sites_short_code', 60 );
+			
+		}
+		
+		
+		
+		
 
 		
 		
@@ -386,14 +410,25 @@ class waas1_list_all_sites_shortcode_class{
 			$html .= '</div>';
 			
 			
-			$html .= '<div class="col-stats">';
+			
+			if( strpos($site['domain'], $site['WAAS1_PLATFORM_DOMAIN']) !== false ) {
+				$html .= '<div class="col-stats">';
+				$html .= '<h4>Monthly stats</h4>';
+				$html .= 'Once you add a domain to this site. Your monthly website visitors usage stats will appear here.';
+				$html .= '</div>';
+			}else{
+				$html .= '<div class="col-stats">';
 				$html .= '<h4>Monthly stats</h4>';
 				$html .= $site['TOTAL_UNIQUE_VISITORS'].' Unique Visitors';
 				$html .= '<br />';
 				$html .= $site['TOTAL_PAGE_VIEWS'].' Unique Visitors';
 				$html .= '<br />';
 				$html .= $site['TOTAL_BANDWIDTH_MB'].'MB Bandwidth used';
-			$html .= '</div>';
+				$html .= '</div>';
+			}
+			
+			
+			
 			
 			
 			$html .= '<div class="col-disk-usage">';

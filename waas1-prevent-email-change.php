@@ -29,6 +29,11 @@ function waas1_wp_pre_insert_user_data( $data, $update, $id, $userdata ){
 		return $data;
 	}
 	
+	//do not process anything if nothing is being updated
+	if( !$update ){
+		return $data;
+	}
+	
 	$old_email = $currentLoggedInUser->data->user_email;
 	$new_email = $data['user_email'];
 	

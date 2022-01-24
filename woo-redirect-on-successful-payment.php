@@ -27,7 +27,7 @@ function waas1_woocommerce_thankyou_redirect( $orderId ){
 		if( $orderId == $parentOrderId ){
 			$url = get_home_url().'/'.$thankYouPageSlug.'/?unique-order-id='.$orderId;
 		}else{
-			$url = get_home_url().'/'.$thankYouPageSlug.'/?parent-order-id='.$parentOrderId;
+			$url = get_home_url().'/'.$renewalThankYouPageSlug.'/?parent-order-id='.$parentOrderId;
 		}
 		
 		wp_safe_redirect( $url );
