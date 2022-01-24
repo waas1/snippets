@@ -21,8 +21,10 @@ class waas1_woo_subscription_create_new_site_class{
 	
 	public function wooSubStatusUpdate( $subscription, $new_status, $old_status ){ //wooSubStatusUpdate start
 		
-		$orderId = $this->getOrderId( $subscription );
-		$waas1_api = new Waas1Api();
+		
+		
+		$orderId 		= $this->getOrderId( $subscription );
+		$waas1_api 		= new Waas1Api();
 		$apiCheckOrderId = $waas1_api->network_get_site_info_by_order_id( $orderId );
 
 		
@@ -43,6 +45,13 @@ class waas1_woo_subscription_create_new_site_class{
 			}
 			
 		}
+		
+		
+		//remove object cache for every status change
+		$clientEmail = $this->getClientEmailAddress( $subscription );
+		$cache_key 	= 'waas1_list_all_sites_short_code_'.$clientEmail;
+		wp_cache_delete( $cache_key, 'waas1_list_all_sites_short_code' );
+		
 	
 	} //wooSubStatusUpdate end
 	
