@@ -57,9 +57,23 @@ class waas1_list_all_sites_shortcode_class{
 			margin-right: 5px;
 		}
 		#waas1_list_all_sites_shortcode_wrapper .thumbnail img{
-			border-radius: 6px;
-			max-width: 120px;
+			border-radius: 6px 6px 0 0;
+			max-width: 145px;
+			display: block;
 		}
+		
+		
+		#waas1_list_all_sites_shortcode_wrapper .thumbnail a.manage-subscription{
+			display: block;
+			text-align: center;
+			background: var(--e-global-color-primary);
+			color: #fff;
+			padding: 2px 0;
+			font-size: 14px;
+			border-radius: 0 0 6px 6px;
+		}
+		
+		
 		#waas1_list_all_sites_shortcode_wrapper h4{
 			margin: 0 0 5px 0;
 			font-size: 18px;
@@ -187,6 +201,7 @@ class waas1_list_all_sites_shortcode_class{
 	
 
 	function render_shortcode( $atts ){
+		
 		
 		//add css and js
 		add_action( 'wp_footer', array($this, 'add_js_css'), 1800 );
@@ -390,12 +405,15 @@ class waas1_list_all_sites_shortcode_class{
 	
 	function generate_html( $site, $args, $current_url ){
 		
+		$main_action_url = home_url().'/my-account/view-subscription/'.($site['unique_order_id']+1).'/';
+		
 		$site_url = 'https://'.$site['domain'].'/';
 		
 		$html = '<div class="site-wrapper">';
 		
 			$html .= '<div class="col-one thumbnail">';
-				$html .= '<a href="'.$site_url.'" target="_blank"><img src="' . $this->wpThumbShots .urlencode( $site_url ).'?w=120" /></a>';
+				$html .= '<a href="'.$main_action_url.'"><img src="' . $this->wpThumbShots .urlencode( $site_url ).'?w=145" /></a>';
+				$html .= '<a class="manage-subscription" href="'.$main_action_url.'">Manage subscription</a>';
 			$html .= '</div>';
 			
 			
