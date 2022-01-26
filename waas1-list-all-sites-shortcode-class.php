@@ -405,15 +405,22 @@ class waas1_list_all_sites_shortcode_class{
 	
 	function generate_html( $site, $args, $current_url ){
 		
-		$main_action_url = home_url().'/my-account/view-subscription/'.($site['unique_order_id']+1).'/';
-		
 		$site_url = 'https://'.$site['domain'].'/';
 		
 		$html = '<div class="site-wrapper">';
 		
 			$html .= '<div class="col-one thumbnail">';
-				$html .= '<a href="'.$main_action_url.'"><img src="' . $this->wpThumbShots .urlencode( $site_url ).'?w=145" /></a>';
-				$html .= '<a class="manage-subscription" href="'.$main_action_url.'">Manage subscription</a>';
+		
+				if( isset($site['unique_order_id']) ){
+					
+					$main_action_url = home_url().'/my-account/view-subscription/'.($site['unique_order_id']+1).'/';
+					$html .= '<a href="'.$main_action_url.'"><img src="' . $this->wpThumbShots .urlencode( $site_url ).'?w=145" /></a>';
+					$html .= '<a class="manage-subscription" href="'.$main_action_url.'">Manage subscription</a>';
+			
+				}else{
+					$html .= '<a href="'.$site_url.'"><img src="' . $this->wpThumbShots .urlencode( $site_url ).'?w=145" /></a>';
+				}
+		
 			$html .= '</div>';
 			
 			
@@ -432,7 +439,7 @@ class waas1_list_all_sites_shortcode_class{
 			if( strpos($site['domain'], $site['WAAS1_PLATFORM_DOMAIN']) !== false ) {
 				$html .= '<div class="col-stats">';
 				$html .= '<h4>Monthly stats</h4>';
-				$html .= 'Once you add a domain to this site. Your monthly website visitors usage stats will appear here.';
+				$html .= 'Once we add a domain to this site. Your monthly website visitors usage stats will appear here.';
 				$html .= '</div>';
 			}else{
 				$html .= '<div class="col-stats">';
@@ -460,7 +467,7 @@ class waas1_list_all_sites_shortcode_class{
 			
 			$html .= '<div class="col-four">';
 				$html .= '<a class="admin_login" href="'.$site['one-time-login'].'" target="_blank"><i aria-hidden="true" class="fas fa-key"></i> Admin</a>';
-				$html .= '<a class="admin_login" href="'.$args['update_domain_url'].'" target="_blank">Update domain</a>';
+				$html .= '<a class="admin_login" href="'.$args['update_domain_url'].'" target="_blank">Add domain</a>';
 				
 				if( $args['allow_site_clone'] == 'yes' && $site['status'] == '1' ){
 					
