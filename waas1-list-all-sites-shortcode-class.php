@@ -115,6 +115,14 @@ class waas1_list_all_sites_shortcode_class{
 		#waas1_list_all_sites_shortcode_wrapper .col-site-details{
 			width: 190px;
 		}
+		#waas1_list_all_sites_shortcode_wrapper .col-site-details h4 i.fa-check{
+			color: #16b300;
+		}
+		#waas1_list_all_sites_shortcode_wrapper .col-site-details h4 i.fa-times{
+			color: #ff0033;
+		}
+		
+		
 		#waas1_list_all_sites_shortcode_wrapper .col-stats{
 			width: 150px;
 		}
@@ -426,9 +434,9 @@ class waas1_list_all_sites_shortcode_class{
 			
 			$html .= '<div class="col-site-details">';
 				if( $site['status'] == '1' ){
-					$html .= '<h4>Active</h4>';
+					$html .= '<h4>Active <i class="fas fa-check"></i></h4>';
 				}else{
-					$html .= '<h4>Deactivated</h4>';
+					$html .= '<h4>Deactivated <i class="fas fa-times"></i></h4>';
 				}
 				$html .= '<a class="site-domain" href="'.$site_url.'" target="_blank">'.$site['domain'].'</a>';
 				$html .= '<span class="site-note-details">(Node: '.$site['node_id'].' - Site: '.$site['site_id'].')</span>';
