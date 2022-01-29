@@ -110,6 +110,18 @@ class Waas1Api{
 		return $response;
 	}
 	
+	//update the site
+	function site_update( $node_to_use, $paramters_array ){
+		
+		$payload_array = array();
+		foreach( $paramters_array as $key=>$parameter ){
+			$payload_array[$key] = $parameter;
+		}
+		
+		$response = $this->_send_api_request( 'site/update/', $payload_array, $node_to_use );
+		return $response;
+	}
+	
 	
 	//suspend/active the site.
 	function site_status( $node_to_use, $site_id, $status ){
