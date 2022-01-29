@@ -14,7 +14,7 @@ new waas1_list_all_sites_shortcode_class();
 
 class waas1_list_all_sites_shortcode_class{
 
-
+	private $_attributeKey = 'select-plan'; //set this to false if you are not offering diferent plans
 	private $wpThumbShots = 'https://s5.wp.com/mshots/v1/';
 	private $loggedInUserEmail;
 	
@@ -23,6 +23,9 @@ class waas1_list_all_sites_shortcode_class{
 	function __construct(){
 		add_shortcode('waas1_list_all_sites', array($this, 'render_shortcode') );
 		add_action( 'init', array($this, 'register_query_vars') );
+		if( $this->_attributeKey ){
+			strtolower( $this->_attributeKey );
+		}
 	}
 	
 	
@@ -57,7 +60,6 @@ class waas1_list_all_sites_shortcode_class{
 			margin-right: 5px;
 		}
 		#waas1_list_all_sites_shortcode_wrapper .thumbnail img{
-			border-radius: 6px 6px 0 0;
 			max-width: 145px;
 			display: block;
 		}
@@ -71,6 +73,12 @@ class waas1_list_all_sites_shortcode_class{
 			padding: 2px 0;
 			font-size: 14px;
 			border-radius: 0 0 6px 6px;
+		}
+		
+		#waas1_list_all_sites_shortcode_wrapper span.selected-plan{
+			text-transform: capitalize;
+			display: block;
+			margin-bottom: 5px;
 		}
 		
 		
@@ -400,7 +408,26 @@ class waas1_list_all_sites_shortcode_class{
 	
 	
 	
-	
+	private function getAttribute( $subscription, $attributeKey ){
+		
+		$subscription_products = $subscription->get_items();
+		foreach( $subscription_products as $product ){
+
+			$productData = $product->get_meta_data();
+			foreach( $productData as $meta ){
+				
+				if( strtolower($meta->key) == $attributeKey ){
+					$requiredField = strtolower($meta->value);
+					break;
+				}else{
+					$requiredField = false;
+				}
+			}
+			
+		}
+		return $requiredField;
+		
+	}
 	
 	
 	
@@ -420,8 +447,8 @@ class waas1_list_all_sites_shortcode_class{
 			$html .= '<div class="col-one thumbnail">';
 		
 				if( isset($site['unique_order_id']) ){
-					
 					$main_action_url = home_url().'/my-account/view-subscription/'.($site['unique_order_id']+1).'/';
+					
 					$html .= '<a href="'.$main_action_url.'"><img src="' . $this->wpThumbShots .urlencode( $site_url ).'?w=145" /></a>';
 					$html .= '<a class="manage-subscription" href="'.$main_action_url.'">Manage subscription</a>';
 			
@@ -439,7 +466,22 @@ class waas1_list_all_sites_shortcode_class{
 					$html .= '<h4>Deactivated <i class="fas fa-times"></i></h4>';
 				}
 				$html .= '<a class="site-domain" href="'.$site_url.'" target="_blank">'.$site['domain'].'</a>';
+				
+				
+				
+				if( isset($site['unique_order_id']) ){
+					if( $this->_attributeKey ){
+						$subscriptionId = $site['unique_order_id']+1;
+						$subscriptions = wcs_get_subscriptions_for_order( $site['unique_order_id'], array('order_type'=>'any') );
+						$planUsed = $this->getAttribute( $subscriptions[$subscriptionId], $this->_attributeKey );
+						$html .= '<span class="selected-plan">Plan: '.$planUsed.'</span>';
+					}
+				}
+				
 				$html .= '<span class="site-note-details">(Node: '.$site['node_id'].' - Site: '.$site['site_id'].')</span>';
+				
+				
+				
 			$html .= '</div>';
 			
 			
