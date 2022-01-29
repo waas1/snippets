@@ -14,15 +14,45 @@ new waas1_woo_subscription_create_new_site_class();
 class waas1_woo_subscription_create_new_site_class{
 	
 	
+	private $_attributeKey = 'select-plan'; //set this to false if you are not offering diferent plans
+	
+	//map the plan name to the required restrictions group id
+	private $_mapAttibuteArray = array( 
+									'bronze'	=> '1',
+									'silver'	=> '2',
+									'gold'		=> '3',
+								);
+	
 	function __construct(){
+		
+		
+		
+		//when subscription status changes
 		add_action( 'woocommerce_subscription_status_updated', array($this, 'wooSubStatusUpdate'), 11, 3 );
+		
+		if( $this->_attributeKey ){
+			strtolower( $this->_attributeKey );
+			//when subscription is plan is changed
+			add_action( 'woocommerce_subscriptions_switch_completed', array($this, 'wooSubPlanChange'), 11 );
+		}
+		
+		
+		
 	}
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
 	public function wooSubStatusUpdate( $subscription, $new_status, $old_status ){ //wooSubStatusUpdate start
-		
-		
-		
+	
+	
+
 		$orderId 		= $this->getOrderId( $subscription );
 		$waas1_api 		= new Waas1Api();
 		$apiCheckOrderId = $waas1_api->network_get_site_info_by_order_id( $orderId );
@@ -61,6 +91,41 @@ class waas1_woo_subscription_create_new_site_class{
 	
 	
 	
+	public function wooSubPlanChange( $order ){ //wooSubPlanChange start
+		
+		$waas1_api = new Waas1Api();
+		
+		$subscriptions = wcs_get_subscriptions_for_order( $order, array('order_type'=>'any') );
+		foreach( $subscriptions as $subscription ){
+			$parentOrderId = $subscription->data['parent_id'];
+			break;
+		}
+		
+		$apiCheckOrderId 	= $waas1_api->network_get_site_info_by_order_id( $parentOrderId );
+		$planToUse 			= $this->getAttribute( $order, $this->_attributeKey );
+		
+		if( $apiCheckOrderId['status'] ){
+			
+			//update the site restriction group id.
+			$siteData = $apiCheckOrderId['data'][0];
+			
+			$paramters_array = array(
+				'node-id'				=>  $siteData['node_id'],
+				'site-id'				=> 	$siteData['site_id'],
+				'restrictions-group'	=>  $this->_mapAttibuteArray[$planToUse]
+			);
+			
+			$returnArray = $waas1_api->site_update( $siteData['node_id'], $paramters_array );
+
+		}else{
+			//send an email to admin that we need to adjust the order manually.
+		}
+	
+	} //wooSubPlanChange end
+	
+	
+	
+	
 	
 	
 	
@@ -71,8 +136,12 @@ class waas1_woo_subscription_create_new_site_class{
 		
 		//build the node selection logic here
 		$node_to_use = $this->getSmallestNodeId();
-
-	
+		
+		if( $this->_attributeKey ){
+			$planToUse = $this->getAttribute( $subscription, $this->_attributeKey );
+		}else{
+			$planToUse = false;
+		}
 		
 		$clientEmail 		= $this->getClientEmailAddress( $subscription );
 		$cloneSourceNodeId 	= $this->getCustomField( $subscription, 'template_node_id' );
@@ -111,6 +180,11 @@ class waas1_woo_subscription_create_new_site_class{
 			//'inject-physical_address'	=>  $completeBillingAddress,
 		);
 		
+		
+		if( $planToUse ){
+			$paramters_array['restrictions-group'] = $this->_mapAttibuteArray[$planToUse];
+		}
+		
 		$waas1_api = new Waas1Api();
 		$returnArray = $waas1_api->site_new( $node_to_use, $paramters_array );
 		return $returnArray;
@@ -145,7 +219,7 @@ class waas1_woo_subscription_create_new_site_class{
 		}
 		
 		$waas1_api = new Waas1Api();
-		$returnArray = $waas1_api->site_status( $siteData['node-id'], $siteData['site_id'], $statusToSet );
+		$returnArray = $waas1_api->site_status( $siteData['node_id'], $siteData['site_id'], $statusToSet );
 		return $returnArray;
 		
 	} //changeSiteStatus end
@@ -206,6 +280,31 @@ class waas1_woo_subscription_create_new_site_class{
 	
 	
 	
+	private function getAttribute( $subscription, $attributeKey ){
+		
+		$subscription_products = $subscription->get_items();
+		foreach( $subscription_products as $product ){
+
+			$productData = $product->get_meta_data();
+			foreach( $productData as $meta ){
+				
+				if( strtolower($meta->key) == $attributeKey ){
+					$requiredField = strtolower($meta->value);
+					break;
+				}else{
+					$requiredField = false;
+				}
+			}
+			
+		}
+		return $requiredField;
+		
+	}
+	
+	
+	
+	
+
 	
 	
 	
