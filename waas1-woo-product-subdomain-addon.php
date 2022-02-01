@@ -56,7 +56,7 @@ class waas1_woo_product_subdomain_addon_class{
 			$html .= '<label>Choose your subdomain <small>*</small></label>';
 			$html .= '<input name="subdomain_text_addon" value="' . $value . '">';
 			$html .= '.'.WAAS1_PLATFORM_DOMAIN;
-			$html .= '<p>You will be able to add your own domain name once websiteis ready.</p>';
+			$html .= '<p>You will be able to add your own domain name once website is ready.</p>';
 		$html .= '</div>';
 		
 		echo $html;
