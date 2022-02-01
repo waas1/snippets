@@ -15,6 +15,7 @@ class waas1_woo_subscription_create_new_site_class{
 	
 	
 	private $_attributeKey = 'select-plan'; //set this to false if you are not offering diferent plans
+	private $_customSubDomain = 'Selected Sub/Domain'; //set this to false if you are not using custom subdomain
 	
 	//map the plan name to the required restrictions group id
 	private $_mapAttibuteArray = array( 
@@ -31,12 +32,14 @@ class waas1_woo_subscription_create_new_site_class{
 		add_action( 'woocommerce_subscription_status_updated', array($this, 'wooSubStatusUpdate'), 11, 3 );
 		
 		if( $this->_attributeKey ){
-			strtolower( $this->_attributeKey );
-			//when subscription is plan is changed
+			$this->_attributeKey = strtolower( $this->_attributeKey );
+			//we have to change the restrictions group again when subscription is plan is changed
 			add_action( 'woocommerce_subscriptions_switch_completed', array($this, 'wooSubPlanChange'), 11 );
 		}
 		
-		
+		if( $this->_customSubDomain ){
+			$this->_customSubDomain = strtolower( $this->_customSubDomain );
+		}
 		
 	}
 	
@@ -143,6 +146,15 @@ class waas1_woo_subscription_create_new_site_class{
 			$planToUse = false;
 		}
 		
+		if( $this->_customSubDomain ){
+			$customSubDomain = $this->getAttribute( $subscription, $this->_customSubDomain );
+			$getSubDomainPart = explode( '.', $customSubDomain );
+			$customSubDomain = $getSubDomainPart[0];
+		}else{
+			$customSubDomain = false;
+		}
+		
+		
 		$clientEmail 		= $this->getClientEmailAddress( $subscription );
 		$cloneSourceNodeId 	= $this->getCustomField( $subscription, 'template_node_id' );
 		$cloneSourceSiteId 	= $this->getCustomField( $subscription, 'template_site_id' );
@@ -164,7 +176,6 @@ class waas1_woo_subscription_create_new_site_class{
 		//$billing_company		= $this->getClientBillingData( $subscription, 'company' );
 		
 		//$billing_country_full	= $this->codeToCountry( $billing_country );
-		
 		//$completeBillingAddress = $billing_address_1.' '.$billing_address_2.' '.$billing_city.' '.$billing_state.' '.$billing_postcode.' '.$billing_country_full;
 		
 		
@@ -184,6 +195,12 @@ class waas1_woo_subscription_create_new_site_class{
 		if( $planToUse ){
 			$paramters_array['restrictions-group'] = $this->_mapAttibuteArray[$planToUse];
 		}
+		//if no subdomain found. API will auto create a site using client email as subdomain.
+		if( $customSubDomain ){
+			$paramters_array['subdomain'] = $customSubDomain;
+		}
+		
+		
 		
 		$waas1_api = new Waas1Api();
 		$returnArray = $waas1_api->site_new( $node_to_use, $paramters_array );
@@ -284,7 +301,7 @@ class waas1_woo_subscription_create_new_site_class{
 		
 		$subscription_products = $subscription->get_items();
 		foreach( $subscription_products as $product ){
-
+			
 			$productData = $product->get_meta_data();
 			foreach( $productData as $meta ){
 				
@@ -297,6 +314,7 @@ class waas1_woo_subscription_create_new_site_class{
 			}
 			
 		}
+		
 		return $requiredField;
 		
 	}
