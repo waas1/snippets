@@ -1,15 +1,14 @@
 @media (min-width: 768px){
     #customer_details{
-        width: 55%;
+        width: 50%;
 		float: left;
 		padding-right: 50px;
     }
     #order_review_heading{
-        width: 30%;
         float: left;
     }
     #order_review{
-        width: 45%;
+        width: 50%;
     	float: left;
     }
     .woocommerce table.shop_table td{
