@@ -2,7 +2,7 @@
 
 
 //update the email to receive hooks notifications.
-define( 'WAAS1_TEST_EMAIL_ADDRESS', 'info.invokers@gmail.com' );
+define( 'WAAS1_TEST_EMAIL_ADDRESS', '' );
 
 
 
