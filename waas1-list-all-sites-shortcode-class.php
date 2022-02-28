@@ -244,6 +244,7 @@ class waas1_list_all_sites_shortcode_class{
 		$cache_key = 'waas1_list_all_sites_short_code_'.$this->loggedInUserEmail;
 		$all_sites = wp_cache_get( $cache_key, 'waas1_list_all_sites_short_code');
 		
+		
 		if( !$all_sites ){
 			$all_sites = $waas1_api->network_get_site_info( array(
 															'client-email'=>$this->loggedInUserEmail, 
@@ -409,8 +410,8 @@ class waas1_list_all_sites_shortcode_class{
 	
 	
 	private function getAttribute( $subscription, $attributeKey ){
-		
 		$subscription_products = $subscription->get_items();
+		
 		foreach( $subscription_products as $product ){
 
 			$productData = $product->get_meta_data();
@@ -425,6 +426,7 @@ class waas1_list_all_sites_shortcode_class{
 			}
 			
 		}
+		
 		return $requiredField;
 		
 	}
@@ -471,12 +473,20 @@ class waas1_list_all_sites_shortcode_class{
 				
 				if( isset($site['unique_order_id']) ){
 					if( $this->_attributeKey ){
+						
 						$subscriptionId = $site['unique_order_id']+1;
 						$subscriptions = wcs_get_subscriptions_for_order( $site['unique_order_id'], array('order_type'=>'any') );
-						$planUsed = $this->getAttribute( $subscriptions[$subscriptionId], $this->_attributeKey );
+						
+						if( isset($subscriptions[$subscriptionId]) ){
+							$planUsed = $this->getAttribute( $subscriptions[$subscriptionId], $this->_attributeKey );
+						}else{
+							$planUsed = 'Website pending delete';
+						}
 						$html .= '<span class="selected-plan">Plan: '.$planUsed.'</span>';
+						
 					}
 				}
+				
 				
 				$html .= '<span class="site-note-details">(Node: '.$site['node_id'].' - Site: '.$site['site_id'].')</span>';
 				
@@ -516,7 +526,14 @@ class waas1_list_all_sites_shortcode_class{
 			$html .= '</div>';
 			
 			$html .= '<div class="col-four">';
-				$html .= '<a class="admin_login" href="'.$site['one-time-login'].'" target="_blank"><i aria-hidden="true" class="fas fa-key"></i> Admin</a>';
+				
+				
+				if( strpos( strtolower($site['one-time-login']), 'error#98807') !== false ){
+				}else{
+					$html .= '<a class="admin_login" href="'.$site['one-time-login'].'" target="_blank"><i aria-hidden="true" class="fas fa-key"></i> Admin</a>';
+				}
+			
+				
 				$html .= '<a class="admin_login" href="'.$args['update_domain_url'].'" target="_blank">Add domain</a>';
 				
 				if( $args['allow_site_clone'] == 'yes' && $site['status'] == '1' ){
