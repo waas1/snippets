@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 //--------------------
 //Note: This snippet relies on Waas1Api class. You also need to add Waas1Api class snippet and properly configure it.
-//usage: [waas1_list_all_sites update_domain_url="https://yourdomain.com/contact-us/"]. default is allow site cloning
-//use [waas1_list_all_sites update_domain_url="https://yourdomain.com/contact-us/" allow_site_clone="no"] 
+//usage: [waas1_list_all_sites]. default is allow site cloning to yes
+//use [waas1_list_all_sites allow_site_clone="no"]  to disable site cloning
 //--------------------
 
 
@@ -333,11 +333,9 @@ class waas1_list_all_sites_shortcode_class{
 		
 		$args = shortcode_atts( array(
 									'allow_site_clone'=>'yes',
-									'update_domain_url'=>home_url().'/contact-us/',
 									), $atts );
 									
 		$args['allow_site_clone'] 	= esc_attr( $args['allow_site_clone'] );
-		$args['update_domain_url']	= esc_attr( $args['update_domain_url'] );
 		
 		
 		
