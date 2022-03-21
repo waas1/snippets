@@ -97,6 +97,54 @@ class Waas1Api{
 		
 	}
 	
+	function network_domain_search( $domain ){
+		
+		$payload_array = array( 'domain'=>$domain );
+	
+		$response = $this->_send_api_request( 'network/domain-search/', $payload_array, '1' );
+		return $response;
+		
+	}
+	
+	
+	function network_domain_connect( $domain, $clientEmail=NULL ){
+		
+		$payload_array = array( 'domain'=>$domain );
+		if( $clientEmail ){
+			$payload_array['client-email'] = $clientEmail;
+		}
+	
+		$response = $this->_send_api_request( 'network/domain-connect/', $payload_array, '1' );
+		return $response;
+		
+	}
+	
+	
+	function network_domain_register( $domain, $clientEmail=NULL ){
+		
+		$payload_array = array( 'domain'=>$domain );
+		if( $clientEmail ){
+			$payload_array['client-email'] = $clientEmail;
+		}
+
+		$response = $this->_send_api_request( 'network/domain-register/', $payload_array, '1' );
+		return $response;
+		
+	}
+	
+	
+	function network_domain_list( $clientEmail=NULL, $domain=NULL ){
+		
+		$payload_array = array( 'client-email'=>$clientEmail );
+		if( $domain ){
+			$payload_array['domain'] = $domain;
+		}
+	
+		$response = $this->_send_api_request( 'network/domain-list/', $payload_array, '1' );
+		return $response;
+		
+	}
+	
 	
 	//Create a new WordPress site or clone any other site on the network.
 	function site_new( $node_to_use, $paramters_array ){
@@ -159,8 +207,16 @@ class Waas1Api{
 			)
 		);
 		
+		if( isset($response['body']) ){
+			$returnArray = json_decode( $response['body'], true );
+		}else{
+			$returnArray = array( 'status'=>false, 'errorMsg'=>'Connection timed out.' );
+		}
 		
-		$returnArray = json_decode( $response['body'], true );
+		if( !is_array($returnArray) ){
+			$returnArray = array( 'status'=>false, 'errorMsg'=>'Something wrong went wrong. #3233456' );
+		}
+
 		return $returnArray;
 		
 	}

@@ -14,8 +14,10 @@ new waas1_woo_subscription_create_new_site_class();
 class waas1_woo_subscription_create_new_site_class{
 	
 	
+	private $_conditionCatSlugs = array( 'templates' ); //add all product categories where you want to run this snippet.
 	private $_attributeKey = 'select-plan'; //set this to false if you are not offering diferent plans
 	private $_customSubDomain = 'Selected Sub/Domain'; //set this to false if you are not using custom subdomain
+	
 	
 	//map the plan name to the required restrictions group id
 	private $_mapAttibuteArray = array( 
@@ -23,11 +25,11 @@ class waas1_woo_subscription_create_new_site_class{
 									'silver'	=> '2',
 									'gold'		=> '3',
 								);
+								
+								
 	
 	function __construct(){
-		
-		
-		
+
 		//when subscription status changes
 		add_action( 'woocommerce_subscription_status_updated', array($this, 'wooSubStatusUpdate'), 11, 3 );
 		
@@ -54,9 +56,20 @@ class waas1_woo_subscription_create_new_site_class{
 	
 	public function wooSubStatusUpdate( $subscription, $new_status, $old_status ){ //wooSubStatusUpdate start
 	
-	
+		$orderId 	= $this->getOrderId( $subscription );
+		$order 		= wc_get_order( $orderId );
+		$items 		= $order->get_items();
+		
+		foreach ( $items as $item ) {
+			$productId = $item->get_product_id();
+			if( !$this->checkAllConditions($productId) ){
+				return false; // do not process this hook
+			}
+		}//endforeach
+		
 
-		$orderId 		= $this->getOrderId( $subscription );
+		
+		
 		$waas1_api 		= new Waas1Api();
 		$apiCheckOrderId = $waas1_api->network_get_site_info_by_order_id( $orderId );
 
@@ -95,6 +108,20 @@ class waas1_woo_subscription_create_new_site_class{
 	
 	
 	public function wooSubPlanChange( $order ){ //wooSubPlanChange start
+		
+		
+		$orderId 	= $order->get_id();
+
+		$order 		= wc_get_order( $orderId );
+		$items 		= $order->get_items();
+		
+		foreach ( $items as $item ) {
+			$productId = $item->get_product_id();
+			if( !$this->checkAllConditions($productId) ){
+				return false; // do not process this hook
+			}
+		}//endforeach
+		
 		
 		$waas1_api = new Waas1Api();
 		
@@ -334,6 +361,27 @@ class waas1_woo_subscription_create_new_site_class{
 	
 	
 	
+	
+	private function checkAllConditions( $productId=false ){
+		
+		if( $productId ){
+			$allCats = get_the_terms( $productId, 'product_cat' );
+		}else{
+			$allCats = get_the_terms( get_the_ID(), 'product_cat' );
+		}
+		
+		if( empty($allCats) ){
+			return false;
+		}
+		
+		foreach( $allCats as $cat ){
+			if( in_array( $cat->slug, $this->_conditionCatSlugs ) ){
+				return true;
+				break;
+			}
+		}
+		return false;
+	}
 
 	
 	

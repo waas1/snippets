@@ -10,16 +10,76 @@ class Waas1ApiAjax{
 	
 	
 	function __construct(){
-		//hook for guest users
-		add_action( 'wp_ajax_nopriv_waas1_get_site_progress', array($this, 'getSiteProgressGuest'), 11, 3 );
-		//hook for logged in users
-		add_action( 'wp_ajax_waas1_get_site_progress', array($this, 'getSiteProgress'), 11, 3 );
+		
+		add_action( 'wp_ajax_nopriv_waas1_get_site_progress', array($this, 'guestUser'), 11, 3 ); //hook for guest users
+		add_action( 'wp_ajax_waas1_get_site_progress', array($this, 'getSiteProgress'), 11, 3 ); //hook for logged in users
+		
+		add_action( 'wp_ajax_nopriv_waas1_search_domain', array($this, 'guestUser'), 11, 3 ); //hook for guest users
+		add_action( 'wp_ajax_waas1_search_domain', array($this, 'searchDomain'), 11, 3 ); //hook for logged in users
+		
+		add_action( 'wp_ajax_nopriv_waas1_connect_domain', array($this, 'guestUser'), 11, 3 ); //hook for guest users
+		add_action( 'wp_ajax_waas1_connect_domain', array($this, 'connectDomain'), 11, 3 ); //hook for logged in users
+		
 	}
 	
 	
-	public function getSiteProgressGuest(){
+	public function guestUser(){
 		$this->sendJsonResponse( 403, 'Who are you?' );
 	}
+	
+	
+	
+	public function connectDomain(){
+		
+		$domain = sanitize_text_field( $_POST['domain'] );
+		if( $domain == '' ){
+			$this->sendJsonResponse( 403, 'domain is required' );
+			exit;
+		}
+		
+		$currentUser = wp_get_current_user();
+		$clientEmail = $currentUser->user_email;
+		
+		//now check the network using API if the domain is available or not.
+		$waas1_api = new Waas1Api();
+		$responseBody = $waas1_api->network_domain_connect( $domain, $clientEmail );
+		
+	
+		if( $responseBody['status'] == false ){
+			$this->sendJsonResponse( 403, $responseBody['errorMsg'] );
+			exit;
+		}
+		
+		$returnData = array( 'msg'=>$responseBody['msg'] );		
+		$this->sendJsonResponse( 200, 'Success!', $returnData );
+		exit;
+	}
+	
+	
+	
+	public function searchDomain(){
+		
+		$domain = sanitize_text_field( $_POST['domain'] );
+		if( $domain == '' ){
+			$this->sendJsonResponse( 403, 'domain is required' );
+			exit;
+		}
+		
+		//now check the network using API if the domain is available or not.
+		$waas1_api = new Waas1Api();
+		$responseBody = $waas1_api->network_domain_search( $domain );
+		
+	
+		if( $responseBody['status'] == false ){
+			$this->sendJsonResponse( 403, $responseBody['errorMsg'] );
+			exit;
+		}
+		
+		$returnData = array( 'msg'=>$responseBody['msg'], 'pricing'=>$responseBody['pricing'] );		
+		$this->sendJsonResponse( 200, 'Success!', $returnData );
+		exit;
+	}
+	
 	
 	public function getSiteProgress(){
 		
@@ -48,6 +108,8 @@ class Waas1ApiAjax{
 		$this->sendJsonResponse( 200, 'Success!', $returnData );
 		exit;
 	}
+	
+	
 	
 	
 	
