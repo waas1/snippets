@@ -577,7 +577,7 @@ class waas1_list_all_sites_shortcode_class{
 			if( isset($apiResponse['status']) && $apiResponse['status'] == true ){
 				
 				//remove the cache
-				wp_cache_delete( $cache_key_domain, 'waas1_list_all_domains_short_code' );
+				wp_cache_delete( $cache_key, 'waas1_list_all_sites_short_code' );
 				
 				$url_array['waas1-alert-type'] = 'success';
 				$url_array['waas1-alert-msg'] = 'Successfully changed the site domain.';
