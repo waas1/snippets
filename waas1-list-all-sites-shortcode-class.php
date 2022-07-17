@@ -329,7 +329,7 @@ class waas1_list_all_sites_shortcode_class{
 		
 		global $wp;
 		$waas1_api = new Waas1Api();
-		$current_url = home_url( add_query_arg( array(), $wp->request ) );
+		$current_url = home_url( add_query_arg( array(), $wp->request ) ).'/';
 		
 		$args = shortcode_atts( array(
 									'allow_site_clone'=>'yes',
