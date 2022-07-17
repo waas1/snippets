@@ -32,7 +32,7 @@ class Waas1Api{
 	private $_api_version = '1';
 	
 	//other variables
-	private $_api_timeout = 35;
+	private $_api_timeout = 60;
 	private $_api_url;
 	
 	//-----------------------------
