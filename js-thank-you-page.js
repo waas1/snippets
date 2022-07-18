@@ -4,19 +4,30 @@ jQuery( document ).ready(function( $ ){
 	let uniqueOrderId = searchParams.get('unique-order-id');
 	let refreshIntervalId;
 	
+	$('#gotoWebsiteBackend i').addClass( 'fa-spin' );
+	
+	
+	
+	
 	if( uniqueOrderId != null ){
 		checkForSiteProgress();
-		refreshIntervalId = setInterval( checkForSiteProgress, 10000 );
+		refreshIntervalId = setInterval( checkForSiteProgress, 5000 );
 	}
 	
 	
-	function checkForSiteProgress(){
+	function checkForSiteProgress( getLoginData=false ){
+
+		let postData = { 'action':'waas1_get_site_progress', 'unique-order-id':uniqueOrderId };
+		
+		if( getLoginData ){
+		  postData['with-one-time-login'] = "true";
+		}
 		
 		$.ajax({
 			type : "POST",
 			dataType : "json",
 			url : "/encrypted-admin/wp-admin/admin-ajax.php",
-			data : { 'action':'waas1_get_site_progress', 'unique-order-id':uniqueOrderId },
+			data : postData,
 			success: function( data ){
 				
 				if( data['data'] ){
@@ -27,7 +38,19 @@ jQuery( document ).ready(function( $ ){
 
 					if( data['data']['progress_completed'] === '100' ){
 						clearInterval( refreshIntervalId );
-						injectHtmlData( data['data'] );
+						
+						//if we have site 100% get the login data
+						if( getLoginData ){
+							$('#gotoWebsiteBackend').removeClass('disabled').attr('disabled', false).text('Go to website back-end');
+							$('#gotoWebsiteBackend').attr( 'href', data['data']['all']['one-time-login'] );
+							
+						}else{
+							injectHtmlData( data['data'] );
+							//setup wp admin button.
+							setupWpAdminButton();
+						}
+						
+						
 					}
 				}
 
@@ -41,16 +64,25 @@ jQuery( document ).ready(function( $ ){
 		
 		$( '#progressWrapper1' ).slideUp();
 		$( '#progressWrapper2' ).slideDown();
+		$( '#progressWrapper3' ).slideDown();
 		
-		let html = 'Perfect! Your shiny new website is ready. <br /> ';
-		html += 'Check out: <strong><a target="_blank" href="https://'+data['domain']+'">';
+		let html = '';
+		html += 'Your website is ready. <br /> ';
+		html += 'You should receive an email at: <strong>'+data['client_email']+'</strong> with login details. <br /> ';
+		
+		html += 'Website: <strong><a target="_blank" href="https://'+data['domain']+'">';
 			html += data['domain'];
-		html += '</strong></a></p><p>';
-		html += 'Don\'t forget to check your email: <strong>'+data['client_email']+'</strong> for login details.</p>';
+		html += '</strong></a>';
+		
 		$( '#progressWrapper2HtmlInject p' ).html( html );
 		
 	}
 	
+	
+	function setupWpAdminButton(){
+		$('#gotoWebsiteBackend').addClass('disabled').attr('disabled', true);
+		checkForSiteProgress( true );
+	}
 	
 	
 	
