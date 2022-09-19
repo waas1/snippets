@@ -84,7 +84,9 @@ class waas1_woo_subscription_create_new_site_class{
 			
 		}else{
 			
-			if( $new_status == 'active' ){
+			if( $new_status == 'cancelled' ){ //delete the site
+				$response = $this->removeSite( $apiCheckOrderId );
+			}elseif( $new_status == 'active' ){
 				$response = $this->changeSiteStatus( $apiCheckOrderId, 'active' );
 			}else{
 				$response = $this->changeSiteStatus( $apiCheckOrderId, 'suspend' );
