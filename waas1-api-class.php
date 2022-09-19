@@ -181,6 +181,17 @@ class Waas1Api{
 	}
 	
 	
+	//remove the site.
+	function site_remove( $node_to_use, $site_id ){
+		
+		$payload_array = array( 'site-id'=>$site_id );
+		
+		$response = $this->_send_api_request( 'site/remove/', $payload_array, $node_to_use );
+		return $response;
+		
+	}
+	
+	
 	
 	
 	
